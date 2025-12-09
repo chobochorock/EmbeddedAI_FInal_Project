@@ -39,8 +39,30 @@ classes = checkpoint['classes']
 
 # 모델 구조 정의 (학습 때 사용한 구조와 동일해야 함, 예시는 SimpleCNN)
 # 만약 ResNet18을 썼다면 그 함수를 가져와야 합니다.
-from simple_cnn import SimpleCNN # <-- [주의] SimpleCNN 클래스가 있는 파일 import
-classifier = SimpleCNN(num_classes=len(classes)) 
+# from simple_cnn import SimpleCNN # <-- [주의] SimpleCNN 클래스가 있는 파일 import
+# classifier = SimpleCNN(num_classes=len(classes)) 
+from torchvision import models
+
+def get_resnet_for_50x50(num_classes):
+    # 1. ResNet18 불러오기 (Pretrained는 ImageNet(RGB) 기준이라 구조 변경 시 가중치 매칭이 까다로울 수 있어 False 추천)
+    model = models.resnet18(weights=None) 
+    
+    # 2. [수정 포인트] 입력 채널을 3 -> 1로 변경
+    # 원래 ResNet의 첫 conv1은 (3, 64, 7x7, stride=2)입니다.
+    # 50x50 처럼 작은 이미지는 정보를 너무 많이 잃으므로 (1, 64, 3x3, stride=1)로 바꿉니다.
+    model.conv1 = nn.Conv2d(1, 64, kernel_size=3, stride=1, padding=1, bias=False)
+    
+    # 3. 첫 번째 Pooling 제거 (선택 사항)
+    # 50x50 이미지는 너무 작아지면 안 되므로 maxpool을 건너뛰게 할 수도 있습니다.
+    # 여기서는 유지하되, 위에서 stride를 1로 줄여서 정보 손실을 막았습니다.
+    
+    # 4. 마지막 출력층(FC)을 우리 클래스 개수에 맞게 변경
+    num_ftrs = model.fc.in_features
+    model.fc = nn.Linear(num_ftrs, num_classes)
+    
+    return model
+
+classifier = get_resnet_for_50x50(num_classes=4803) # 4803개의 한자 종류
 classifier.load_state_dict(checkpoint['model_state_dict'])
 classifier.to(device).eval()
 
