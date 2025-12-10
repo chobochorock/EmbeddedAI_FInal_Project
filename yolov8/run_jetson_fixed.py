@@ -6,8 +6,8 @@ import sys
 # 설정
 ONNX_MODEL_PATH = "best.onnx"
 LABEL_PATH = "labels.txt"
-INPUT_WIDTH = 640
-INPUT_HEIGHT = 640
+INPUT_WIDTH = 128
+INPUT_HEIGHT = 128
 CONFIDENCE_THRESHOLD = 0.4
 
 def load_classes(path):
