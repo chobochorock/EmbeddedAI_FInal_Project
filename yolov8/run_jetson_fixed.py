@@ -9,10 +9,23 @@ LABEL_PATH = "labels.txt"
 INPUT_WIDTH = 128
 INPUT_HEIGHT = 128
 CONFIDENCE_THRESHOLD = 0.4
+FONT_PATH = "NotoSansKR-Regular.ttf"
 
 def load_classes(path):
     with open(path, "r", encoding="utf-8") as f:
         return [line.strip() for line in f.readlines()]
+
+def put_text_hanja(img, text, position, font_path, font_size, color):
+    img_pil = Image.fromarray(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
+    draw = ImageDraw.Draw(img_pil)
+    try:
+        font = ImageFont.truetype(font_path, font_size)
+    except:
+        # 폰트 파일 없으면 기본 폰트(한자 안나옴) 사용
+        font = ImageFont.load_default()
+    
+    draw.text(position, text, font=font, fill=color)
+    return cv2.cvtColor(np.array(img_pil), cv2.COLOR_RGB2BGR)
 
 def main():
     classes = load_classes(LABEL_PATH)
@@ -135,17 +148,20 @@ def main():
                 box = boxes[idx]
                 left, top, width, height = box[0], box[1], box[2], box[3]
                 
-                # 라벨 표시 (영어)
-                label = f"Class {class_ids[idx]}: {scores[idx]:.2f}"
-                try:
-                     # 한자 리스트가 있다면
-                     label = f"{classes[class_ids[idx]]} {scores[idx]:.2f}"
-                except: pass
+                # 라벨 텍스트 생성
+                if class_ids[idx] < len(classes):
+                    label_text = f"{classes[class_ids[idx]]}" # 점수 빼고 글자만 크게
+                else:
+                    label_text = "Unknown"
 
+                # 1. 박스 그리기 (OpenCV 사용)
                 cv2.rectangle(frame, (left, top), (left+width, top+height), (0, 255, 0), 2)
-                cv2.putText(frame, label, (left, top-10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+                
+                # 2. [핵심 변경] 한자 그리기 (PIL 사용)
+                # 기존 cv2.putText(...) 줄을 지우고 아래 줄로 교체하세요.
+                frame = put_text_hanja(frame, label_text, (left, top - 30), FONT_PATH, 30, (0, 255, 0))
 
-        cv2.imshow("ONNX Runtime", frame)
+        cv2.imshow("Hanja Detector", frame)
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
             
