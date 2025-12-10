@@ -34,10 +34,48 @@ def main():
     input_name = session.get_inputs()[0].name
     output_name = session.get_outputs()[0].name
 
-    cap = cv2.VideoCapture(0) # 혹은 GStreamer 문자열
-    if not cap.isOpened():
-        print("카메라 열기 실패")
+    # cap = cv2.VideoCapture(0) # 혹은 GStreamer 문자열
+    # 1. GStreamer 파이프라인 문자열 생성 함수
+    def gstreamer_pipeline(
+        sensor_id=0,
+        capture_width=1280,
+        capture_height=720,
+        display_width=640,
+        display_height=480,
+        framerate=30,
+        flip_method=0,
+    ):
+        return (
+            "nvarguscamerasrc sensor-id=%d ! "
+            "video/x-raw(memory:NVMM), width=(int)%d, height=(int)%d, format=(string)NV12, framerate=(fraction)%d/1 ! "
+            "nvvidconv flip-method=%d ! "
+            "video/x-raw, width=(int)%d, height=(int)%d, format=(string)BGRx ! "
+            "videoconvert ! "
+            "video/x-raw, format=(string)BGR ! appsink"
+            % (
+                sensor_id,
+                capture_width,
+                capture_height,
+                framerate,
+                flip_method,
+                display_width,
+                display_height,
+            )
+        )
+
+    # 2. 카메라 열기 (GStreamer 모드 사용)
+    print("📸 CSI 카메라를 GStreamer로 여는 중...")
+    cap = cv2.VideoCapture(gstreamer_pipeline(flip_method=0), cv2.CAP_GSTREAMER)
+
+    if cap.isOpened():
+        print("✅ 카메라 연결 성공!")
+    else:
+        print("❌ 카메라 연결 실패: 데몬을 재시작했는지 확인해주세요.")
         sys.exit()
+    
+    # if not cap.isOpened():
+    #     print("카메라 열기 실패")
+    #     sys.exit()
 
     while True:
         ret, frame = cap.read()
