@@ -2,6 +2,7 @@ import cv2
 import numpy as np
 import onnxruntime as ort  # 변경된 부분
 import sys
+from PIL import Image, ImageDraw, ImageFont
 
 # 설정
 ONNX_MODEL_PATH = "best.onnx"
