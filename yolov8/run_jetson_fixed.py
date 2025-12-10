@@ -5,7 +5,7 @@ import sys
 from PIL import Image, ImageDraw, ImageFont
 
 # 설정
-ONNX_MODEL_PATH = "best.onnx"
+ONNX_MODEL_PATH = "best_lightweight.onnx"
 LABEL_PATH = "labels.txt"
 INPUT_WIDTH = 128
 INPUT_HEIGHT = 128
