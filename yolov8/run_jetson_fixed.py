@@ -10,7 +10,7 @@ LABEL_PATH = "labels.txt"
 INPUT_WIDTH = 128
 INPUT_HEIGHT = 128
 CONFIDENCE_THRESHOLD = 0.4
-FONT_PATH = "NotoSansKR-Regular.ttf"
+FONT_PATH = "NanumGothic-Regular.ttf"
 
 def load_classes(path):
     with open(path, "r", encoding="utf-8") as f:
