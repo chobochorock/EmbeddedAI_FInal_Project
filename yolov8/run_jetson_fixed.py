@@ -101,7 +101,7 @@ def main():
         # Resize
         img = cv2.resize(img, (INPUT_WIDTH, INPUT_HEIGHT))
         # 0~255 -> 0.0~1.0
-        img = img.astype(np.float16) / 255.0 # float32
+        img = img.astype(np.float32) / 255.0 # float32
         # (H, W, C) -> (C, H, W) -> (1, C, H, W)
         img = img.transpose(2, 0, 1)
         blob = np.expand_dims(img, axis=0)
