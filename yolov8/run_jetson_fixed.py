@@ -160,7 +160,7 @@ def main():
                 
                 # 2. [핵심 변경] 한자 그리기 (PIL 사용)
                 # 기존 cv2.putText(...) 줄을 지우고 아래 줄로 교체하세요.
-                frame = put_text_hanja(frame, label_text, (left, top - 30), FONT_PATH, 30, (0, 255, 0))
+                frame = put_text_hanja(frame, label_text, (left, top + 30), FONT_PATH, 30, (0, 255, 0))
 
         cv2.imshow("Hanja Detector", frame)
         if cv2.waitKey(1) & 0xFF == ord('q'):
