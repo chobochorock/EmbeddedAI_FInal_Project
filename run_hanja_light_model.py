@@ -13,7 +13,7 @@ ENGINE_PATH = "hanja_yolo3/best6_light.engine"
 LABEL_PATH  = "hanja_yolo3/classes.txt"
 # 우분투 기본 한글/한자 폰트 경로 예시 (나눔고딕 등 추천)
 # 만약 파일이 없다면 'NanumGothic.ttf' 등을 프로젝트 폴더에 넣고 경로 수정하세요.
-FONT_PATH   = "/usr/share/fonts/truetype/nanum/NanumGothic.ttf" 
+FONT_PATH   = "/usr/share/fonts/truetype/wqy/wqy-microhei.ttf" 
 INPUT_SIZE  = 640
 CONF_THRESH = 0.4
 IOU_THRESH  = 0.45
