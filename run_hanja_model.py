@@ -64,73 +64,109 @@ def main():
         sys.exit("❌ 카메라를 열 수 없습니다.")
 
     print("🎥 실행 시작! (종료: q)")
-
+    
+    frame_count = 0
     while True:
+        print(f"[{frame_count}] 프레임 읽기 시도...", end="", flush=True)
         ret, frame = cap.read()
-        if not ret: break
-
-        # ------------------------------------------------
-        # [전처리] YOLOv5 입력 형식에 맞추기
-        # ------------------------------------------------
-        # 1. Resize
-        img = cv2.resize(frame, (INPUT_SIZE, INPUT_SIZE))
-        # 2. BGR -> RGB
-        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-        # 3. Normalize (0~1) & Transpose (HWC -> CHW)
-        img = img.transpose((2, 0, 1)).astype(np.float32) / 255.0
-        # 4. Batch 차원 추가 (1, 3, 640, 640)
-        blob = np.expand_dims(img, axis=0)
-
-        # ------------------------------------------------
-        # [추론] ONNX Runtime 실행
-        # ------------------------------------------------
-        outputs = session.run([output_name], {input_name: blob})[0]
-
-        # ------------------------------------------------
-        # [후처리] 결과 파싱 (YOLOv5 Output)
-        # ------------------------------------------------
-        # Output shape: (1, 25200, 5+Class) -> (1, N, 85 등)
-        predictions = outputs[0] 
-
-        boxes = []
-        scores = []
-        class_ids = []
-
-        # 원본 해상도 복원을 위한 비율
-        x_factor = frame.shape[1] / INPUT_SIZE
-        y_factor = frame.shape[0] / INPUT_SIZE
-
-        # 신뢰도 필터링 (for문 대신 Numpy 연산으로 속도 최적화)
-        # confidence(obj_conf) * class_score 가 기준 이상인 것만 필터링
         
-        # 4번 인덱스(Objectness)가 임계값보다 큰 것만 1차 필터링
-        conf_mask = predictions[:, 4] > CONF_THRESH
-        detections = predictions[conf_mask]
+        if not ret:
+            print("\n❌ 실패: ret=False (카메라 데이터를 못 받아옴)")
+            break
+        print("성공! ", end="", flush=True)
 
-        for det in detections:
-            confidence = det[4]
-            class_probs = det[5:]
-            class_id = np.argmax(class_probs)
-            class_score = class_probs[class_id]
+        # 1. 전처리 & 추론
+        print("추론 중...", end="", flush=True)
+        try:
+            # (여기에 기존 추론 코드...)
+            img = cv2.resize(frame, (INPUT_SIZE, INPUT_SIZE))
+            img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+            img = img.transpose((2, 0, 1)).astype(np.float32) / 255.0
+            blob = np.expand_dims(img, axis=0)
+            outputs = session.run([output_name], {input_name: blob})[0]
+            print("완료! ", end="", flush=True)
+        except Exception as e:
+            print(f"\n❌ 추론 에러: {e}")
+            break
+
+        # 2. 화면 출력 시도
+        print("화면 출력...", end="", flush=True)
+        try:
+            cv2.imshow("Debug", frame)
+            if cv2.waitKey(1) & 0xFF == ord('q'):
+                break
+            print("OK")
+        except Exception as e:
+            print(f"\n❌ 디스플레이 에러: {e}")
+            print("혹시 SSH나 VNC로 접속 중인가요? HDMI 모니터가 연결되어 있나요?")
+            break
             
-            # 최종 점수
-            final_score = confidence * class_score
+        frame_count += 1
+        # ret, frame = cap.read()
+        # if not ret: break
+
+        # # ------------------------------------------------
+        # # [전처리] YOLOv5 입력 형식에 맞추기
+        # # ------------------------------------------------
+        # # 1. Resize
+        # img = cv2.resize(frame, (INPUT_SIZE, INPUT_SIZE))
+        # # 2. BGR -> RGB
+        # img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        # # 3. Normalize (0~1) & Transpose (HWC -> CHW)
+        # img = img.transpose((2, 0, 1)).astype(np.float32) / 255.0
+        # # 4. Batch 차원 추가 (1, 3, 640, 640)
+        # blob = np.expand_dims(img, axis=0)
+
+        # # ------------------------------------------------
+        # # [추론] ONNX Runtime 실행
+        # # ------------------------------------------------
+        # outputs = session.run([output_name], {input_name: blob})[0]
+
+        # # ------------------------------------------------
+        # # [후처리] 결과 파싱 (YOLOv5 Output)
+        # # ------------------------------------------------
+        # # Output shape: (1, 25200, 5+Class) -> (1, N, 85 등)
+        # predictions = outputs[0] 
+
+        # boxes = []
+        # scores = []
+        # class_ids = []
+
+        # # 원본 해상도 복원을 위한 비율
+        # x_factor = frame.shape[1] / INPUT_SIZE
+        # y_factor = frame.shape[0] / INPUT_SIZE
+
+        # # 신뢰도 필터링 (for문 대신 Numpy 연산으로 속도 최적화)
+        # # confidence(obj_conf) * class_score 가 기준 이상인 것만 필터링
+        
+        # # 4번 인덱스(Objectness)가 임계값보다 큰 것만 1차 필터링
+        # conf_mask = predictions[:, 4] > CONF_THRESH
+        # detections = predictions[conf_mask]
+
+        # for det in detections:
+        #     confidence = det[4]
+        #     class_probs = det[5:]
+        #     class_id = np.argmax(class_probs)
+        #     class_score = class_probs[class_id]
             
-            if final_score > CONF_THRESH:
-                x, y, w, h = det[0:4]
+        #     # 최종 점수
+        #     final_score = confidence * class_score
+            
+        #     if final_score > CONF_THRESH:
+        #         x, y, w, h = det[0:4]
                 
-                # 좌표 복원 (Center_XYWH -> TopLeft_XYWH)
-                left = int((x - 0.5 * w) * x_factor)
-                top = int((y - 0.5 * h) * y_factor)
-                width = int(w * x_factor)
-                height = int(h * y_factor)
+        #         # 좌표 복원 (Center_XYWH -> TopLeft_XYWH)
+        #         left = int((x - 0.5 * w) * x_factor)
+        #         top = int((y - 0.5 * h) * y_factor)
+        #         width = int(w * x_factor)
+        #         height = int(h * y_factor)
 
-                boxes.append([left, top, width, height])
-                scores.append(float(final_score))
-                class_ids.append(int(class_id))
+        #         boxes.append([left, top, width, height])
+        #         scores.append(float(final_score))
+        #         class_ids.append(int(class_id))
 
-        # NMS (겹친 박스 제거)
-        indices = cv2.dnn.NMSBoxes(boxes, scores, CONF_THRESH, 0.45)
+        # # NMS (겹친 박스 제거)
+        # indices = cv2.dnn.NMSBoxes(boxes, scores, CONF_THRESH, 0.45)
 
         # ----------------
 
