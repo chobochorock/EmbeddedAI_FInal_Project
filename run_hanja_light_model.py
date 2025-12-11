@@ -79,6 +79,7 @@ def main():
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         img = img.transpose((2, 0, 1)).astype(np.float32) / 255.0
         blob = np.expand_dims(img, axis=0)
+        blob = blob.astype(np.float16)
 
         # ------------------------------------------------
         # [추론]
