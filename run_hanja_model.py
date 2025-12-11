@@ -7,7 +7,7 @@ from PIL import Image, ImageDraw, ImageFont
 # ==========================================
 # [설정] 본인 환경에 맞게 수정하세요
 # ==========================================
-ONNX_MODEL_PATH = "hanja_yolo3/best8.onnx"   # PC에서 가져온 ONNX 파일 (opset 10 권장)
+ONNX_MODEL_PATH = "hanja_yolo3/best6.onnx"   # PC에서 가져온 ONNX 파일 (opset 10 권장)
 LABEL_PATH      = "./hanja_yolo3/classes.txt" # 클래스 이름이 적힌 파일
 INPUT_SIZE      = 640           # 학습할 때 사용한 이미지 크기 (640 or 1280 등)
 CONF_THRESH     = 0.4           # 탐지 신뢰도 기준
