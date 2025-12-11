@@ -5,7 +5,7 @@ import sys
 import time
 
 # ==========================================
-ONNX_MODEL_PATH = "hanja_yolo3/best.onnx"
+ONNX_MODEL_PATH = "hanja_yolo3/best8.onnx"
 INPUT_SIZE      = 640
 # ==========================================
 
