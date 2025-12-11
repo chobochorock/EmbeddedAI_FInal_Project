@@ -1,6 +1,6 @@
 import cv2
 import numpy as np
-import onnxruntime as ort  # 변경된 부분
+import onnxruntime as ort
 import sys
 from PIL import Image, ImageDraw, ImageFont
 

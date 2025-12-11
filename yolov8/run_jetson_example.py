@@ -59,7 +59,7 @@ def main():
             # 색상: White(글씨), Gray40(배경)
             font.OverlayText(img, img.width, img.height, 
                              text, int(d.Left), int(d.Top) - 35, 
-                             font.White, font.Gray40)
+                             (255, 255, 255, 255), (100, 100, 100, 200))
 
         # 6. 화면 출력 및 FPS 표시
         display.Render(img)
