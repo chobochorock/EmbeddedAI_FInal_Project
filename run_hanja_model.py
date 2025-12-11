@@ -7,7 +7,7 @@ import time
 
 # ==========================================
 # [설정]
-ONNX_MODEL_PATH = "hanja_yolo3/best6.onnx"
+ONNX_MODEL_PATH = "hanja_yolo3/best6_light.onnx"
 LABEL_PATH      = "./hanja_yolo3/classes.txt"
 INPUT_SIZE      = 640
 CONF_THRESH     = 0.4
