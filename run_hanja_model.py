@@ -133,3 +133,6 @@ def main():
         indices = cv2.dnn.NMSBoxes(boxes, scores, CONF_THRESH, 0.45)
 
         # ----------------
+
+if __name__ == '__main__':
+    main()
