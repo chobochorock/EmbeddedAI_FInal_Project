@@ -3,6 +3,7 @@ import numpy as np
 import onnxruntime as ort
 import sys
 from PIL import Image, ImageDraw, ImageFont
+import time
 
 # ==========================================
 # [설정]
@@ -60,11 +61,16 @@ def main():
 
     print("🎥 실행 시작! (종료: q)")
 
+    prev_time = 0
     while True:
         ret, frame = cap.read()
         if not ret:
             print("❌ 카메라 데이터 수신 실패")
             break
+
+        curr_time = time.time()
+        fps = 1 / (curr_time - prev_time)
+        prev_time = curr_time
 
         # ------------------------------------------------
         # [전처리]
@@ -139,6 +145,8 @@ def main():
             
             # 다시 OpenCV 포맷으로 변환
             frame = cv2.cvtColor(np.array(img_pil), cv2.COLOR_RGB2BGR)
+
+        cv2.putText(frame, f"FPS: {fps:.2f}", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
 
         # ------------------------------------------------
         
